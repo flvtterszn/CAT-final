@@ -1,13 +1,45 @@
 {
   "name": "cat-theory-prep-ieb",
+  "productName": "CAT Theory Prep",
+  "description": "IEB Grade 12 CAT Paper 2 Theory Study App",
+  "author": "CAT Theory Prep",
   "private": true,
   "version": "2.0.0",
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0 --port 3000",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "build:exe": "vite build && electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.cattheoryprep.ieb",
+    "productName": "CAT Theory Prep",
+    "compression": "normal",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "electron/icon.png",
+      "signAndEditExecutable": false
+    },
+    "portable": {
+      "artifactName": "CAT-Theory-Prep.exe"
+    }
   },
   "dependencies": {
     "lucide-react": "^0.511.0",
@@ -19,6 +51,8 @@
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^4.5.1",
+    "electron": "^45.5.0",
+    "electron-builder": "^26.18.0",
     "tailwindcss": "^4.1.8",
     "typescript": "^5.8.3",
     "vite": "^6.3.5"

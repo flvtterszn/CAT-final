@@ -1,114 +1,112 @@
 import React from 'react';
 import { COGNITIVE_LEVELS_GUIDE, PAPER2_STRUCTURE, SAGS_EXCLUSIONS } from '../data/topics';
+import { RichText } from './RichText';
 
 export const ExamGuideView: React.FC = () => {
   return (
-    <div className="space-y-8">
-      <div className="border-b border-slate-200 pb-5 dark:border-slate-800">
-        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-          IEB National Senior Certificate · Subject Assessment Guidelines (SAGS)
-        </p>
-        <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
-          Paper 2 Exam Blueprint &amp; SAGS Scope
-        </h1>
+    <div>
+      <div className="cat-top">
+        <h1 className="cat-h1">Exam guide</h1>
       </div>
 
-      {/* Paper 2 Structure Table */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-          Paper 2 Structure (150 Marks · 3 Hours · ~1.2 min/mark)
-        </h2>
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-left text-sm">
+      <div className="cat-card">
+        <b style={{ display: 'block', marginBottom: 8 }}>
+          Paper 2 structure (<mark className="cat-num">150 marks</mark> ·{' '}
+          <mark className="cat-num">3 hours</mark>)
+        </b>
+        <div className="cat-table-wrap">
+          <table className="cat-table">
             <thead>
-              <tr className="border-b border-slate-200 text-xs font-semibold text-slate-600 dark:border-slate-800 dark:text-slate-400">
-                <th className="py-2.5 pr-4">Section</th>
-                <th className="py-2.5 pr-4">SAGS Focus</th>
-                <th className="py-2.5 text-right">Marks</th>
+              <tr>
+                <th>Question</th>
+                <th>Focus</th>
+                <th style={{ textAlign: 'right' }}>Marks</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody>
               {PAPER2_STRUCTURE.map((row) => (
                 <tr key={row.question}>
-                  <td className="py-3 pr-4 font-semibold text-slate-900 whitespace-nowrap dark:text-slate-100">
-                    {row.question}
+                  <td>
+                    <span className="cat-term-chip">{row.question}</span>
                   </td>
-                  <td className="py-3 pr-4 text-slate-600 dark:text-slate-300">{row.focus}</td>
-                  <td className="py-3 text-right font-mono font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                    {row.marks}
+                  <td>
+                    <RichText text={row.focus} />
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
+                    <mark className="cat-num">{row.marks}</mark>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </section>
+      </div>
 
-      {/* Cognitive Levels */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-          Cognitive Levels &amp; Command Words (30% · 40% · 30%)
-        </h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {COGNITIVE_LEVELS_GUIDE.map((lvl) => (
-            <article
-              key={lvl.tier}
-              className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
-            >
-              <p className="font-mono text-xs font-semibold tabular-nums text-blue-700 dark:text-blue-400">
-                {lvl.marks}
+      <div className="cat-card">
+        <b style={{ display: 'block', marginBottom: 6 }}>
+          Cognitive levels (<mark className="cat-num">30%</mark> · <mark className="cat-num">40%</mark>{' '}
+          · <mark className="cat-num">30%</mark>)
+        </b>
+        {COGNITIVE_LEVELS_GUIDE.map((lvl, i) => {
+          const condCls = i === 0 ? 'cat-cond-high' : i === 1 ? 'cat-cond-mid' : 'cat-cond-low';
+          return (
+            <div key={lvl.tier} style={{ marginTop: 10 }}>
+              <div className="cat-row" style={{ gap: 6 }}>
+                <span className={`cat-pill ${condCls}`}>{lvl.tier}</span>
+                <mark className="cat-num">{lvl.marks}</mark>
+              </div>
+              <p className="cat-mut" style={{ margin: '4px 0 2px' }}>
+                <b>Command words:</b> {lvl.commandWords}
               </p>
-              <h3 className="mt-1 text-base font-bold text-slate-900 dark:text-slate-100">{lvl.tier}</h3>
-              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                <strong className="text-slate-700 dark:text-slate-200">Command words:</strong> {lvl.commandWords}
+              <p style={{ margin: '2px 0', fontSize: '0.92rem' }}>
+                <RichText text={lvl.strategy} />
               </p>
-              <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">{lvl.strategy}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+            </div>
+          );
+        })}
+      </div>
 
-      {/* Strict SAGS Scope & Exclusions */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-          Strict Grade 12 SAGS Scope &amp; Exclusions
-        </h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {SAGS_EXCLUSIONS.map((item) => (
-            <article
-              key={item.item}
-              className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
-            >
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{item.status}</p>
-              <h3 className="mt-1 text-base font-bold text-slate-900 dark:text-slate-100">{item.item}</h3>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{item.detail}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* Whole Subject Weighting */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-          Whole Subject Assessment Breakdown (400 Marks)
-        </h2>
-        <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+      <div className="cat-card">
+        <b style={{ display: 'block', marginBottom: 4 }}>Exam technique</b>
+        <ul className="cat-list" style={{ fontSize: '0.94rem' }}>
           <li>
-            <strong>Paper 1 (Practical):</strong> 3 hours, 180 marks scaled to 100 (File Management 20, Word 50,
-            Excel 50, Access 40, HTML 20; ±5 marks).
+            <RichText text="About 1.2 min per mark: 3 hours for 150 marks." />
           </li>
           <li>
-            <strong>Paper 2 (Theory):</strong> 3 hours, 150 marks scaled to 100 (tested in this app).
+            <RichText text="The integrated scenario (Q8–Q9) carries ±50 marks (a third of the paper). Read it twice, underline needs (budget, users, environment), and justify every recommendation." />
           </li>
           <li>
-            <strong>PAT (Practical Assessment Task):</strong> 170 marks scaled to 100 (Presentations are assessed ONLY
-            in the PAT).
+            <RichText text="Never give one-word answers for a 2-mark or 3-mark Explain or Discuss question." />
           </li>
           <li>
-            <strong>SBA (School-Based Assessment):</strong> 100 marks across tests, assignments, and prelim exams.
+            <RichText text="Whole subject (400 marks): Paper 1 Practical (180→100), Paper 2 Theory (150→100), PAT (170→100), SBA (100)." />
           </li>
         </ul>
-      </section>
+      </div>
+
+      <div className="cat-card">
+        <b style={{ display: 'block', marginBottom: 6 }}>Strict Grade 12 SAGS Scope &amp; Exclusions</b>
+        {SAGS_EXCLUSIONS.map((item) => {
+          const included = item.status.includes('Examinable');
+          return (
+            <div
+              key={item.item}
+              className={included ? 'cat-callout-good' : 'cat-callout-trap'}
+              style={{ marginTop: 8 }}
+            >
+              <div className="cat-row" style={{ gap: 6 }}>
+                <span className="cat-term-chip">{item.item}</span>
+                <span className={`cat-pill ${included ? 'cat-cond-high' : 'cat-cond-low'}`}>
+                  {item.status}
+                </span>
+              </div>
+              <p style={{ margin: '4px 0 0', fontSize: '0.9rem' }}>
+                <RichText text={item.detail} />
+              </p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

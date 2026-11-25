@@ -9,7 +9,7 @@ export const TOPICS: TopicMeta[] = [
     paperSection: 'Questions 1–3 & 8–9',
     description:
       'Hardware architecture, processing, memory, storage, ports, assistive devices, OS mechanics, licensing, file management, and troubleshooting.',
-    accentHex: '#2563EB',
+    accentHex: '#4c6ef5',
   },
   {
     id: 'net',
@@ -19,7 +19,7 @@ export const TOPICS: TopicMeta[] = [
     paperSection: 'Questions 1–2, 4 & 8–9',
     description:
       'Network scopes, topologies, cabling, hardware, ISP broadband criteria, protocols, web technologies, cloud computing, IoT, and e-communication.',
-    accentHex: '#0284C7',
+    accentHex: '#12b886',
   },
   {
     id: 'inf',
@@ -29,7 +29,7 @@ export const TOPICS: TopicMeta[] = [
     paperSection: 'Question 5 & PAT Theory',
     description:
       'DIKW hierarchy, 5-step problem-solving cycle, source evaluation, question types, questionnaire design, formal reports, and algorithm trace tables.',
-    accentHex: '#059669',
+    accentHex: '#f59f00',
   },
   {
     id: 'soc',
@@ -39,7 +39,7 @@ export const TOPICS: TopicMeta[] = [
     paperSection: 'Questions 6 & 8–9',
     description:
       'Green computing, ergonomics, digital divide, POPIA & copyright, BYOD/AUP, malware & cybercrime, data safeguards, and 4IR/5IR emerging technologies.',
-    accentHex: '#D97706',
+    accentHex: '#e64980',
   },
   {
     id: 'dev',
@@ -49,7 +49,7 @@ export const TOPICS: TopicMeta[] = [
     paperSection: 'Questions 1–2, 7 & 8–9',
     description:
       'Theoretical concepts behind Word processing, Excel formulas & charts, Access relational tables/queries/forms/reports, and HTML/CSS debugging.',
-    accentHex: '#7C3AED',
+    accentHex: '#7950f2',
   },
 ];
 

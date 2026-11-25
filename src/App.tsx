@@ -9,13 +9,14 @@ import {
   recordDailyActivity,
   scheduleFlashcard,
 } from './utils/studyEngine';
-import { Header } from './components/Header';
-import { DashboardView } from './components/DashboardView';
-import { StudyNotesView } from './components/StudyNotesView';
-import { WorkedExamsView } from './components/WorkedExamsView';
-import { PracticeView } from './components/PracticeView';
-import { ExamGuideView } from './components/ExamGuideView';
+import { HomeView } from './components/HomeView';
+import { TopicView } from './components/TopicView';
+import { LessonView } from './components/LessonView';
 import { DailySessionView } from './components/DailySessionView';
+import { ExamQuestionsView } from './components/ExamQuestionsView';
+import { ExamGuideView } from './components/ExamGuideView';
+import { SearchView } from './components/SearchView';
+import { BottomNav } from './components/BottomNav';
 
 const STORAGE_KEY = 'cat_ieb_prep_v2';
 
@@ -34,12 +35,13 @@ function loadProgress(): StudyProgress {
 
 export const App: React.FC = () => {
   const [progress, setProgress] = useState<StudyProgress>(loadProgress);
-  const [view, setView] = useState<AppView>('dashboard');
-  const [notesTopic, setNotesTopic] = useState<TopicId | 'all'>('sys');
-  const [notesSearch, setNotesSearch] = useState('');
-  const [notesMountKey, setNotesMountKey] = useState(0);
-  const [workedTopic, setWorkedTopic] = useState<ExamTopicId | 'all'>('all');
-  const [quizTopic, setQuizTopic] = useState<TopicId | 'all'>('all');
+  const [view, setView] = useState<AppView>('home');
+  const [activeTopic, setActiveTopic] = useState<TopicId>('sys');
+  const [activeLessonId, setActiveLessonId] = useState<string>(ALL_NOTES[0].id);
+  const [sessionTopic, setSessionTopic] = useState<TopicId | 'all'>('all');
+  const [examTopic, setExamTopic] = useState<ExamTopicId | 'all'>('all');
+  const [examFocusId, setExamFocusId] = useState<string | null>(null);
+  const [topicConfetti, setTopicConfetti] = useState(false);
 
   useEffect(() => {
     try {
@@ -51,6 +53,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const root = document.documentElement;
+    root.dataset.theme = progress.theme;
     if (progress.theme === 'dark') {
       root.classList.add('dark');
     } else {
@@ -58,22 +61,29 @@ export const App: React.FC = () => {
     }
   }, [progress.theme]);
 
-  const handleToggleStudied = (noteId: string) => {
+  const go = (nextView: AppView) => {
+    setView(nextView);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
+  const handleFinishLesson = (noteId: string) => {
     setProgress((prev) => {
-      const nextVal = !prev.studiedNotes[noteId];
+      const alreadyStudied = Boolean(prev.studiedNotes[noteId]);
       const base: StudyProgress = {
         ...prev,
-        studiedNotes: { ...prev.studiedNotes, [noteId]: nextVal },
+        studiedNotes: { ...prev.studiedNotes, [noteId]: true },
       };
-      return nextVal ? recordDailyActivity(base, 15) : base;
+      return alreadyStudied ? base : recordDailyActivity(base, 20);
     });
+    setTopicConfetti(true);
+    go('topic');
   };
 
   const handleRateFlashcard = (noteId: string, rating: 0 | 1 | 2) => {
     setProgress((prev) => {
       const currentBox = prev.flashcards[noteId]?.box ?? 0;
       const nextState = scheduleFlashcard(currentBox, rating, getDayNumber());
-      const xp = rating === 0 ? 2 : 6 + rating;
+      const xp = rating === 0 ? 1 : 5 + rating;
       return recordDailyActivity(
         {
           ...prev,
@@ -116,46 +126,35 @@ export const App: React.FC = () => {
     });
   };
 
-  const navigateAndScroll = (nextView: AppView) => {
-    setView(nextView);
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  };
+  const topicNotes = ALL_NOTES.filter((n) => n.topic === activeTopic);
+  const currentLesson = ALL_NOTES.find((n) => n.id === activeLessonId) ?? ALL_NOTES[0];
+  const lessonNumber =
+    topicNotes.findIndex((n) => n.id === currentLesson.id) + 1 || 1;
+
+  const isFullscreen = view === 'session' || view === 'lesson';
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <Header
-        activeView={view}
-        onNavigate={navigateAndScroll}
-        onStartSession={() => navigateAndScroll('session')}
-      />
-
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        {view === 'dashboard' && (
-          <DashboardView
+    <>
+      <main className="cat-main">
+        {view === 'home' && (
+          <HomeView
             notes={ALL_NOTES}
             mcqs={MCQ_QUESTIONS}
             workedExams={WORKED_EXAM_QUESTIONS}
             progress={progress}
-            onOpenTopicNotes={(t) => {
-              setNotesTopic(t);
-              setNotesSearch('');
-              setNotesMountKey((k) => k + 1);
-              navigateAndScroll('notes');
+            onStartSession={() => {
+              setSessionTopic('all');
+              go('session');
             }}
-            onOpenTopicWorked={(t) => {
-              setWorkedTopic(t);
-              navigateAndScroll('worked');
+            onOpenTopic={(t) => {
+              setActiveTopic(t);
+              setTopicConfetti(false);
+              go('topic');
             }}
-            onStartQuiz={(t) => {
-              setQuizTopic(t);
-              navigateAndScroll('practice');
-            }}
-            onStartSession={() => navigateAndScroll('session')}
-            onGlobalSearch={(q) => {
-              setNotesTopic('all');
-              setNotesSearch(q);
-              setNotesMountKey((k) => k + 1);
-              navigateAndScroll('notes');
+            onOpenWorked={(t) => {
+              setExamTopic(t);
+              setExamFocusId(null);
+              go('exam');
             }}
             onToggleTheme={() =>
               setProgress((p) => ({ ...p, theme: p.theme === 'dark' ? 'light' : 'dark' }))
@@ -165,57 +164,105 @@ export const App: React.FC = () => {
           />
         )}
 
-        {view === 'notes' && (
-          <StudyNotesView
-            key={notesMountKey}
+        {view === 'topic' && (
+          <TopicView
+            topicId={activeTopic}
             notes={ALL_NOTES}
+            mcqs={MCQ_QUESTIONS}
+            workedExams={WORKED_EXAM_QUESTIONS}
             progress={progress}
-            selectedTopic={notesTopic}
-            initialSearch={notesSearch}
-            onSelectTopic={(t) => setNotesTopic(t)}
-            onToggleStudied={handleToggleStudied}
-            onOpenWorkedForTopic={(t) => {
-              setWorkedTopic(t);
-              navigateAndScroll('worked');
+            showConfetti={topicConfetti}
+            onBack={() => go('home')}
+            onOpenLesson={(noteId) => {
+              setActiveLessonId(noteId);
+              go('lesson');
+            }}
+            onPractiseTopic={(t) => {
+              setSessionTopic(t);
+              go('session');
+            }}
+            onOpenTopicExams={(t) => {
+              setExamTopic(t);
+              setExamFocusId(null);
+              go('exam');
             }}
           />
         )}
 
-        {view === 'worked' && (
-          <WorkedExamsView
-            questions={WORKED_EXAM_QUESTIONS}
-            progress={progress}
-            selectedTopic={workedTopic}
-            onSelectTopic={setWorkedTopic}
-            onUpdateDraft={handleUpdateDraft}
-            onToggleChecklistItem={handleToggleChecklistItem}
+        {view === 'lesson' && (
+          <LessonView
+            key={currentLesson.id}
+            note={currentLesson}
+            lessonNumber={lessonNumber}
+            onExit={() => {
+              setTopicConfetti(false);
+              go('topic');
+            }}
+            onFinish={handleFinishLesson}
           />
         )}
-
-        {view === 'practice' && (
-          <PracticeView
-            key={quizTopic}
-            mcqs={MCQ_QUESTIONS}
-            progress={progress}
-            initialTopic={quizTopic}
-            onAnswerMcq={handleAnswerMcq}
-          />
-        )}
-
-        {view === 'guide' && <ExamGuideView />}
 
         {view === 'session' && (
           <DailySessionView
             notes={ALL_NOTES}
             mcqs={MCQ_QUESTIONS}
             progress={progress}
+            topicFilter={sessionTopic}
             onRateFlashcard={handleRateFlashcard}
             onAnswerMcq={handleAnswerMcq}
-            onExit={() => navigateAndScroll('dashboard')}
+            onCompleteBonus={() =>
+              setProgress((p) => ({ ...p, xp: p.xp + 20 }))
+            }
+            onExit={() => go('home')}
+          />
+        )}
+
+        {view === 'exam' && (
+          <ExamQuestionsView
+            questions={WORKED_EXAM_QUESTIONS}
+            progress={progress}
+            selectedTopic={examTopic}
+            initialQuestionId={examFocusId}
+            onSelectTopic={(t) => {
+              setExamTopic(t);
+              setExamFocusId(null);
+            }}
+            onUpdateDraft={handleUpdateDraft}
+            onToggleChecklistItem={handleToggleChecklistItem}
+          />
+        )}
+
+        {view === 'guide' && <ExamGuideView />}
+
+        {view === 'find' && (
+          <SearchView
+            notes={ALL_NOTES}
+            workedExams={WORKED_EXAM_QUESTIONS}
+            onOpenLesson={(topicId, noteId) => {
+              setActiveTopic(topicId);
+              setActiveLessonId(noteId);
+              go('lesson');
+            }}
+            onOpenExamQuestion={(topicId, qId) => {
+              setExamTopic(topicId);
+              setExamFocusId(qId);
+              go('exam');
+            }}
           />
         )}
       </main>
-    </div>
+
+      {!isFullscreen && (
+        <BottomNav
+          activeView={view}
+          onNavigate={(tab) => {
+            if (tab === 'exam') setExamFocusId(null);
+            setTopicConfetti(false);
+            go(tab);
+          }}
+        />
+      )}
+    </>
   );
 };
 

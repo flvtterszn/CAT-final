@@ -119,4 +119,4 @@ export interface StudyProgress {
   theme: 'light' | 'dark';
 }
 
-export type AppView = 'dashboard' | 'notes' | 'worked' | 'practice' | 'guide' | 'session';
+export type AppView = 'home' | 'topic' | 'lesson' | 'session' | 'exam' | 'guide' | 'find';
